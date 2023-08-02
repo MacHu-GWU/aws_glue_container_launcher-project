@@ -8,11 +8,18 @@ import sys
 import subprocess
 from pathlib import Path
 
-import pandas as pd
-import awswrangler as wr
+try:
+    import pandas as pd
+    import awswrangler as wr
+except ImportError as e:
+    print(e)
+
 from s3pathlib import S3Path, context
 
-from aws_glue_container_launcher.docker_command import build_spark_submit_args
+from aws_glue_container_launcher.docker_command import (
+    build_spark_submit_args,
+    build_jupyter_lab_args,
+)
 
 boto_ses = boto3.session.Session(profile_name="awshsh_app_dev_us_east_1")
 aws_account_id = boto_ses.client("sts").get_caller_identity()["Account"]
@@ -157,6 +164,17 @@ def spark_submit_test_6():
     res = subprocess.run(args, check=True)
 
 
+def run_jupyter_lab():
+    args = build_jupyter_lab_args(
+        dir_home=dir_home,
+        dir_workspace=dir_workspace,
+        boto_session=boto_ses,
+        dir_site_packages=dir_site_packages,
+        enable_hudi=True,
+    )
+    preview_args(args)
+    res = subprocess.run(args, check=True)
+
 # spark_submit_test_1()
 # spark_submit_test_2()
 # spark_submit_test_3()
@@ -164,3 +182,5 @@ def spark_submit_test_6():
 
 # spark_submit_test_5()
 # spark_submit_test_6()
+
+run_jupyter_lab()

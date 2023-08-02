@@ -19,7 +19,7 @@ DIR_HOME_GLUE_USER = PurePosixPath("/home/glue_user")
 DIR_HOME_GLUE_USER_WORKSPACE = DIR_HOME_GLUE_USER.joinpath("workspace")
 DIR_JUPYTER_WORKSPACE = DIR_HOME_GLUE_USER_WORKSPACE.joinpath("jupyter_workspace")
 DIR_EXTRA_PYTHON_PATH = DIR_HOME_GLUE_USER_WORKSPACE.joinpath("extra_python_path")
-
+PATH_JUPYTER_START_SH = DIR_HOME_GLUE_USER.joinpath("jupyter", "jupyter_start.sh")
 
 def get_docker_run_args(
     auto_remove_container: bool = True,
@@ -317,6 +317,81 @@ def build_pytest_args(
             get_image_uri(glue_version=glue_version),
             "-c",
             f"python3 -m pytest {path_script_or_folder.relative_to(dir_workspace)} -s --disable-warnings",
+        ]
+    )
+    return args
+
+
+def build_jupyter_lab_args(
+    dir_home: Path,
+    dir_workspace: Path,
+    container_name: str = "glue_jupyter_lab",
+    auto_remove_container: bool = True,
+    glue_version: str = GlueVersionEnum.GLUE_4_0.value,
+    dir_site_packages: T.Optional[Path] = None,
+    boto_session: T.Optional[boto3.session.Session] = None,
+    spark_ui_port: int = 4040,
+    spark_history_server_port: int = 18080,
+    livy_server_port: int = 8998,
+    jupyter_notebook_port: int = 8888,
+    enable_hudi: bool = False,
+    enable_delta_lake: bool = False,
+    enable_iceberg: bool = False,
+    additional_docker_run_args: T.Optional[T.List[str]] = None,
+):
+    """
+    :param dir_home:
+    :param dir_workspace:
+    :param container_name:
+    :param auto_remove_container:
+    :param glue_version:
+    :param dir_site_packages:
+    :param boto_session:
+    :param spark_ui_port:
+    :param spark_history_server_port:
+    :param livy_server_port:
+    :param jupyter_notebook_port:
+    :param enable_hudi:
+    :param enable_delta_lake:
+    :param enable_iceberg:
+    :param additional_docker_run_args:
+    """
+    args = get_docker_run_args(
+        auto_remove_container=auto_remove_container,
+    )
+    args.extend(get_container_name_args(name=container_name))
+    args.extend(
+        get_spark_port_args(
+            spark_ui_port=spark_ui_port,
+            spark_history_server_port=spark_history_server_port,
+        )
+    )
+    args.extend(
+        get_jupyter_lab_port_args(
+            livy_server_port=livy_server_port,
+            jupyter_notebook_port=jupyter_notebook_port,
+        )
+    )
+    args.extend(get_mount_aws_dir_args(dir_home=dir_home))
+    args.extend(get_mount_jupyter_workspace_args(dir_jupyter_workspace=dir_workspace))
+    if dir_site_packages is not None:
+        args.extend(get_extra_python_path_args(dir_site_packages=dir_site_packages))
+    if boto_session is not None:
+        args.extend(get_aws_credential_args(boto_ses=boto_session))
+    args.extend(
+        get_enable_datalake_libraries_args(
+            enable_hudi=enable_hudi,
+            enable_delta_lake=enable_delta_lake,
+            enable_iceberg=enable_iceberg,
+        )
+    )
+    args.extend((get_env_vars_args({"IS_GLUE_CONTAINER": "true"})))
+    if additional_docker_run_args is not None:
+        args.extend(additional_docker_run_args)
+    args.extend(
+        [
+            get_image_uri(glue_version=glue_version),
+            str(PATH_JUPYTER_START_SH),
         ]
     )
     return args
