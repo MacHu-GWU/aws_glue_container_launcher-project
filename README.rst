@@ -1,5 +1,5 @@
 
-.. image:: https://readthedocs.org/projects/aws-glue-container-launcher/badge/?version=latest
+.. .. image:: https://readthedocs.org/projects/aws-glue-container-launcher/badge/?version=latest
     :target: https://aws-glue-container-launcher.readthedocs.io/en/latest/
     :alt: Documentation Status
 
@@ -26,10 +26,10 @@
 
 ------
 
-.. image:: https://img.shields.io/badge/Link-Document-blue.svg
+.. .. image:: https://img.shields.io/badge/Link-Document-blue.svg
     :target: https://aws-glue-container-launcher.readthedocs.io/en/latest/
 
-.. image:: https://img.shields.io/badge/Link-API-blue.svg
+.. .. image:: https://img.shields.io/badge/Link-API-blue.svg
     :target: https://aws-glue-container-launcher.readthedocs.io/en/latest/py-modindex.html
 
 .. image:: https://img.shields.io/badge/Link-Install-blue.svg
@@ -57,7 +57,11 @@ Welcome to ``aws_glue_container_launcher`` Documentation
 
 Usage
 ------------------------------------------------------------------------------
-
+- To run glue job locally in container, see example at `here <https://github.com/MacHu-GWU/aws_glue_container_launcher-project/blob/main/examples/run_container.py>`_
+- To run pytest locally in container, see example at `here <https://github.com/MacHu-GWU/aws_glue_container_launcher-project/tree/main/tests_glue/glue_libs>`_
+- To run jupyter lab locally in container, see example at `here <https://github.com/MacHu-GWU/aws_glue_container_launcher-project/blob/main/examples/run_container.py#L173>`_
+- REPL SHELL (TO DO)
+- Visual Studio Code (TODO)
 
 
 .. _install:

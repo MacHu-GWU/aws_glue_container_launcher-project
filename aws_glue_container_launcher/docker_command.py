@@ -13,7 +13,8 @@ import uuid
 import platform
 from pathlib import Path, PurePosixPath
 
-import boto3
+if T.TYPE_CHECKING:
+    import boto3
 
 from .enumeration import (
     GlueVersionEnum,
@@ -110,7 +111,7 @@ def get_mount_jupyter_workspace_args(
 
 
 def get_aws_credential_args(
-    boto_ses: boto3.session.Session,
+    boto_ses: "boto3.session.Session",
 ) -> T.List[str]:
     args = list()
     cred = boto_ses.get_credentials()
@@ -182,7 +183,7 @@ def build_spark_submit_args(
     auto_remove_container: bool = True,
     glue_version: str = GlueVersionEnum.GLUE_4_0.value,
     dir_site_packages: T.Optional[Path] = None,
-    boto_session: T.Optional[boto3.session.Session] = None,
+    boto_session: T.Optional["boto3.session.Session"] = None,
     spark_ui_port: int = 4040,
     spark_history_server_port: int = 18080,
     enable_hudi: bool = False,
@@ -289,7 +290,7 @@ def build_pytest_args(
     auto_remove_container: bool = True,
     glue_version: str = GlueVersionEnum.GLUE_4_0.value,
     dir_site_packages: T.Optional[Path] = None,
-    boto_session: T.Optional[boto3.session.Session] = None,
+    boto_session: T.Optional["boto3.session.Session"] = None,
     spark_ui_port: int = 4040,
     spark_history_server_port: int = 18080,
     enable_hudi: bool = False,
@@ -374,7 +375,7 @@ def build_jupyter_lab_args(
     auto_remove_container: bool = True,
     glue_version: str = GlueVersionEnum.GLUE_4_0.value,
     dir_site_packages: T.Optional[Path] = None,
-    boto_session: T.Optional[boto3.session.Session] = None,
+    boto_session: T.Optional["boto3.session.Session"] = None,
     spark_ui_port: int = 4040,
     spark_history_server_port: int = 18080,
     livy_server_port: int = 8998,
