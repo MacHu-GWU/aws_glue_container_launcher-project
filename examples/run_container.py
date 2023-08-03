@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 
+"""
+This script demonstrates how to use ``aws_glue_container_launcher`` library
+to create a shell script that can be used to run a Glue ETL related tasks
+in container.
+"""
+
 import typing as T
-import os
 
 import boto3
 import sys
 import subprocess
 from pathlib import Path
-
-try:
-    import pandas as pd
-    import awswrangler as wr
-except ImportError as e:
-    print(e)
 
 from s3pathlib import S3Path, context
 
@@ -77,6 +76,13 @@ def spark_submit_test_2():
 
 
 def spark_submit_test_3():
+    """
+    note: you need pandas and awswrangler to run this. because we need
+    awswrangler to create the initial glue catalog table for us.
+    """
+    import pandas as pd
+    import awswrangler as wr
+
     def create_catalog_table():
         # define variables
         database = "mydatabase"
@@ -175,12 +181,15 @@ def run_jupyter_lab():
     preview_args(args)
     res = subprocess.run(args, check=True)
 
-# spark_submit_test_1()
-# spark_submit_test_2()
-# spark_submit_test_3()
-# spark_submit_test_4()
 
-# spark_submit_test_5()
-# spark_submit_test_6()
+if __name__ == "__main__":
+    # spark_submit_test_1()
+    # spark_submit_test_2()
+    # spark_submit_test_3()
+    # spark_submit_test_4()
 
-run_jupyter_lab()
+    # spark_submit_test_5()
+    # spark_submit_test_6()
+
+    # run_jupyter_lab()
+    pass

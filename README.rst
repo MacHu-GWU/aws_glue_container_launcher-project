@@ -50,7 +50,14 @@
 
 Welcome to ``aws_glue_container_launcher`` Documentation
 ==============================================================================
-Documentation for ``aws_glue_container_launcher``.
+`AWS Big Data Blog - Develop and test AWS Glue version 3.0 and 4.0 jobs locally using a Docker container <https://aws.amazon.com/blogs/big-data/develop-and-test-aws-glue-version-3-0-jobs-locally-using-a-docker-container/>`_ introduced a method using AWS maintained glue container to perform local development, unit testing, and interactive jupyter notebook on local laptop or in CI environment. I personally use this to accelerate AWS Glue ETL development, improve development experience and ETL logic visibility, and bring the quality of ETL code to the next level by adding lots of unit test and integration test.
+
+``aws_glue_container_launcher`` is a zero-dependency, pure python library that can easily create shell script to perform tasks introduced in the AWS blog. This project is the core building block in my personal AWS Glue ETL project CI/CD best practice that is used to delivery high-quality ETL pipeline for my clients.
+
+
+Usage
+------------------------------------------------------------------------------
+
 
 
 .. _install:

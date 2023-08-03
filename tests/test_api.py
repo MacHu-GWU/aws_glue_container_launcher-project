@@ -5,6 +5,11 @@ from aws_glue_container_launcher import api
 
 def test():
     _ = api
+    _ = api.GlueVersionEnum
+    _ = api.glue_version_to_python_version_mapper
+    _ = api.build_spark_submit_args
+    _ = api.build_pytest_args
+    _ = api.build_jupyter_lab_args
 
 
 if __name__ == "__main__":
