@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
 
+"""
+Create the docker command to launch the glue container.
+
+Reference:
+
+- AWS Big Data Blog - Develop and test AWS Glue version 3.0 and 4.0 jobs locally using a Docker container: https://aws.amazon.com/blogs/big-data/develop-and-test-aws-glue-version-3-0-jobs-locally-using-a-docker-container/
+"""
+
 import typing as T
 import uuid
 import platform
@@ -9,9 +17,7 @@ import boto3
 
 from .enumeration import (
     GlueVersionEnum,
-    glue_version_to_python_version_mapper,
     processor_to_image_tag_suffix_mapper,
-    ActionEnum,
 )
 
 
@@ -20,6 +26,7 @@ DIR_HOME_GLUE_USER_WORKSPACE = DIR_HOME_GLUE_USER.joinpath("workspace")
 DIR_JUPYTER_WORKSPACE = DIR_HOME_GLUE_USER_WORKSPACE.joinpath("jupyter_workspace")
 DIR_EXTRA_PYTHON_PATH = DIR_HOME_GLUE_USER_WORKSPACE.joinpath("extra_python_path")
 PATH_JUPYTER_START_SH = DIR_HOME_GLUE_USER.joinpath("jupyter", "jupyter_start.sh")
+
 
 def get_docker_run_args(
     auto_remove_container: bool = True,
@@ -182,28 +189,46 @@ def build_spark_submit_args(
     enable_delta_lake: bool = False,
     enable_iceberg: bool = False,
     additional_docker_run_args: T.Optional[T.List[str]] = None,
+    additional_env_vars: T.Optional[T.Dict[str, str]] = None,
     additional_job_args: T.Optional[T.Dict[str, str]] = None,
     additional_cli_args: T.Optional[T.List[str]] = None,
-):
+) -> T.List[str]:
     """
-    :param dir_home:
-    :param dir_workspace:
-    :param path_script:
-    :param job_name:
-    :param job_run_id:
-    :param container_name:
-    :param auto_remove_container:
-    :param glue_version:
-    :param dir_site_packages:
-    :param boto_session:
-    :param spark_ui_port:
-    :param spark_history_server_port:
-    :param enable_hudi:
-    :param enable_delta_lake:
-    :param enable_iceberg:
-    :param additional_docker_run_args:
-    :param additional_job_args:
-    :param additional_cli_args:
+    Build the subprocess arguments that can run glue job in a glue container
+    for local development or testing.
+
+    :param dir_home: the local laptop $HOME directory, it should have
+        a ``${HOME}/.aws`` folder that stores the AWS credentials.
+    :param dir_workspace: the current project workspace directory on your
+        local laptop, your project files should be under this directory.
+    :param job_name: optional glue job name for "--JOB_NAME ${job_name}".
+    :param job_run_id: optional glue job run id for "--JOB_RUN_ID ${job_run_id}".
+    :param container_name: optional docker container name, you can use
+        ``docker container stop ${container_name}`` to stop this glue
+        jupyter lab container.
+    :param auto_remove_container: automatically remove the container when
+        stopped.
+    :param glue_version: the glue version, "4.0" | "3.0" | "2.0".
+    :param dir_site_packages: optional directory where you install your
+        third party packages via ``pip install ...`` command.
+    :param boto_session: optional boto3 session object to give the container
+        AWS credentials to access AWS resources.
+    :param spark_ui_port: optional local spark UI port.
+    :param spark_history_server_port: optional local spark history server port.
+    :param enable_hudi: default False, whether to enable hudi library.
+    :param enable_delta_lake: default False, whether to enable delta lake library.
+    :param enable_iceberg: default False, whether to enable iceberg library.
+    :param additional_docker_run_args: optional additional docker run arguments.
+    :param additional_env_vars: optional additional environment variables for
+        the container in key value dictionary.
+    :param additional_job_args: optional additional glue job arguments in
+        key value dictionary, don't include "--" in the key.
+    :param additional_cli_args: additional spark submit cli arguments you want to
+        pass. For example: ["--conf", "spark.sql.shuffle.partitions=1000"]
+    :param additional_env_vars: optional additional environment variables for
+        the container in key value dictionary.
+
+    :return: the list of arguments you can pass to ``subprocess.run(args)``
     """
     args = get_docker_run_args(
         auto_remove_container=auto_remove_container,
@@ -228,9 +253,11 @@ def build_spark_submit_args(
             enable_iceberg=enable_iceberg,
         )
     )
-    args.extend((get_env_vars_args({"IS_GLUE_CONTAINER": "true"})))
     if additional_docker_run_args is not None:
         args.extend(additional_docker_run_args)
+    args.extend((get_env_vars_args({"IS_GLUE_CONTAINER": "true"})))
+    if additional_env_vars is not None:
+        args.extend(get_env_vars_args(env_vars=additional_env_vars))
     args.extend(
         [
             get_image_uri(glue_version=glue_version),
@@ -269,22 +296,37 @@ def build_pytest_args(
     enable_delta_lake: bool = False,
     enable_iceberg: bool = False,
     additional_docker_run_args: T.Optional[T.List[str]] = None,
-):
+    additional_env_vars: T.Optional[T.Dict[str, str]] = None,
+) -> T.List[str]:
     """
-    :param dir_home:
-    :param dir_workspace:
-    :param path_script_or_folder:
-    :param container_name:
-    :param auto_remove_container:
-    :param glue_version:
-    :param dir_site_packages:
-    :param boto_session:
-    :param spark_ui_port:
-    :param spark_history_server_port:
-    :param enable_hudi:
-    :param enable_delta_lake:
-    :param enable_iceberg:
-    :param additional_docker_run_args:
+    Build the subprocess arguments that can run pytest in a glue container
+    for local unit test.
+
+    :param dir_home: the local laptop $HOME directory, it should have
+        a ``${HOME}/.aws`` folder that stores the AWS credentials.
+    :param dir_workspace: the current project workspace directory on your
+        local laptop, your project files should be under this directory.
+    :param path_script_or_folder: the pytest script or folder you want to test.
+    :param container_name: optional docker container name, you can use
+        ``docker container stop ${container_name}`` to stop this glue
+        jupyter lab container.
+    :param auto_remove_container: automatically remove the container when
+        stopped.
+    :param glue_version: the glue version, "4.0" | "3.0" | "2.0".
+    :param dir_site_packages: optional directory where you install your
+        third party packages via ``pip install ...`` command.
+    :param boto_session: optional boto3 session object to give the container
+        AWS credentials to access AWS resources.
+    :param spark_ui_port: optional local spark UI port.
+    :param spark_history_server_port: optional local spark history server port.
+    :param enable_hudi: default False, whether to enable hudi library.
+    :param enable_delta_lake: default False, whether to enable delta lake library.
+    :param enable_iceberg: default False, whether to enable iceberg library.
+    :param additional_docker_run_args: optional additional docker run arguments.
+    :param additional_env_vars: optional additional environment variables for
+        the container in key value dictionary.
+
+    :return: the list of arguments you can pass to ``subprocess.run(args)``
     """
     args = get_docker_run_args(
         auto_remove_container=auto_remove_container,
@@ -309,13 +351,16 @@ def build_pytest_args(
             enable_iceberg=enable_iceberg,
         )
     )
-    args.extend((get_env_vars_args({"IS_GLUE_CONTAINER": "true"})))
     if additional_docker_run_args is not None:
         args.extend(additional_docker_run_args)
+    args.extend((get_env_vars_args({"IS_GLUE_CONTAINER": "true"})))
+    if additional_env_vars is not None:
+        args.extend(get_env_vars_args(env_vars=additional_env_vars))
     args.extend(
         [
             get_image_uri(glue_version=glue_version),
             "-c",
+            # todo: allow user to pass additional pytest arguments
             f"python3 -m pytest {path_script_or_folder.relative_to(dir_workspace)} -s --disable-warnings",
         ]
     )
@@ -338,23 +383,36 @@ def build_jupyter_lab_args(
     enable_delta_lake: bool = False,
     enable_iceberg: bool = False,
     additional_docker_run_args: T.Optional[T.List[str]] = None,
-):
+    additional_env_vars: T.Optional[T.Dict[str, str]] = None,
+) -> T.List[str]:
     """
-    :param dir_home:
-    :param dir_workspace:
-    :param container_name:
-    :param auto_remove_container:
-    :param glue_version:
-    :param dir_site_packages:
-    :param boto_session:
-    :param spark_ui_port:
-    :param spark_history_server_port:
-    :param livy_server_port:
-    :param jupyter_notebook_port:
-    :param enable_hudi:
-    :param enable_delta_lake:
-    :param enable_iceberg:
-    :param additional_docker_run_args:
+    Build the subprocess arguments that can launch a glue jupyter lab container
+    for local development.
+
+    :param dir_home: the local laptop $HOME directory, it should have
+        a ``${HOME}/.aws`` folder that stores the AWS credentials.
+    :param dir_workspace: the current project workspace directory on your
+        local laptop, your project files should be under this directory.
+    :param container_name: optional docker container name, you can use
+        ``docker container stop ${container_name}`` to stop this glue
+        jupyter lab container.
+    :param auto_remove_container: automatically remove the container when
+        stopped.
+    :param glue_version: the glue version, "4.0" | "3.0" | "2.0".
+    :param dir_site_packages: optional directory where you install your
+        third party packages via ``pip install ...`` command.
+    :param boto_session: optional boto3 session object to give the container
+        AWS credentials to access AWS resources.
+    :param spark_ui_port: optional local spark UI port.
+    :param spark_history_server_port: optional local spark history server port.
+    :param livy_server_port: optional local livy server port.
+    :param jupyter_notebook_port: optional jupyter notebook port.
+    :param enable_hudi: default False, whether to enable hudi library.
+    :param enable_delta_lake: default False, whether to enable delta lake library.
+    :param enable_iceberg: default False, whether to enable iceberg library.
+    :param additional_docker_run_args: optional additional docker run arguments.
+
+    :return: the list of arguments you can pass to ``subprocess.run(args)``
     """
     args = get_docker_run_args(
         auto_remove_container=auto_remove_container,
@@ -385,9 +443,11 @@ def build_jupyter_lab_args(
             enable_iceberg=enable_iceberg,
         )
     )
-    args.extend((get_env_vars_args({"IS_GLUE_CONTAINER": "true"})))
     if additional_docker_run_args is not None:
         args.extend(additional_docker_run_args)
+    args.extend((get_env_vars_args({"IS_GLUE_CONTAINER": "true"})))
+    if additional_env_vars is not None:
+        args.extend(get_env_vars_args(env_vars=additional_env_vars))
     args.extend(
         [
             get_image_uri(glue_version=glue_version),

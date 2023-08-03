@@ -4,19 +4,18 @@ import enum
 
 
 class GlueVersionEnum(str, enum.Enum):
+    """
+    The glue container only support 4.0, 3.0, 2.0
+    """
     GLUE_4_0 = "4.0"
     GLUE_3_0 = "3.0"
     GLUE_2_0 = "2.0"
-    GLUE_1_0 = "1.0"
-    GLUE_0_9 = "0.9"
 
 
 glue_version_to_python_version_mapper = {
     GlueVersionEnum.GLUE_4_0.value: "3.10",
     GlueVersionEnum.GLUE_3_0.value: "3.7",
     GlueVersionEnum.GLUE_2_0.value: "3.7",
-    GlueVersionEnum.GLUE_1_0.value: "3.6",
-    GlueVersionEnum.GLUE_0_9.value: "2.7",
 }
 
 
