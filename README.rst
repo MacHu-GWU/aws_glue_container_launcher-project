@@ -55,6 +55,13 @@ Welcome to ``aws_glue_container_launcher`` Documentation
 ``aws_glue_container_launcher`` is a zero-dependency, pure python library that can easily create shell script to perform tasks introduced in the AWS blog. This project is the core building block in my personal AWS Glue ETL project CI/CD best practice that is used to delivery high-quality ETL pipeline for my clients.
 
 
+Dependencies
+------------------------------------------------------------------------------
+- You need to have docker installed on your local laptop or CI environment. You can test it by running ``docker --version`` in your terminal.
+- Python3.6 + to install this library and run the shell script.
+- MacOS / Linux / Windows OS to run the shell script, but I only tested on MacOS and Linux.
+
+
 Usage
 ------------------------------------------------------------------------------
 - To run glue job locally in container, see example at `here <https://github.com/MacHu-GWU/aws_glue_container_launcher-project/blob/main/examples/run_container.py>`_
