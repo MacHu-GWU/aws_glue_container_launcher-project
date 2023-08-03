@@ -64,9 +64,9 @@ Dependencies
 
 Usage
 ------------------------------------------------------------------------------
-- To run glue job locally in container, see example at `here <https://github.com/MacHu-GWU/aws_glue_container_launcher-project/blob/main/examples/run_container.py>`_
-- To run pytest locally in container, see example at `here <https://github.com/MacHu-GWU/aws_glue_container_launcher-project/tree/main/tests_glue/glue_libs>`_
-- To run jupyter lab locally in container, see example at `here <https://github.com/MacHu-GWU/aws_glue_container_launcher-project/blob/main/examples/run_container.py#L173>`_
+- `run glue job locally in container, see example at <https://github.com/MacHu-GWU/aws_glue_container_launcher-project/blob/main/examples/run_container.py>`_
+- `run pytest locally in container <https://github.com/MacHu-GWU/aws_glue_container_launcher-project/tree/main/tests_glue/glue_libs>`_
+- `run jupyter lab locally in container <https://github.com/MacHu-GWU/aws_glue_container_launcher-project/blob/main/examples/run_container.py#L173>`_
 - REPL SHELL (TO DO)
 - Visual Studio Code (TODO)
 
