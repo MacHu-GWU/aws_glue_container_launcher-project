@@ -121,7 +121,8 @@ def get_aws_credential_args(
     aws_secret_access_key = cred.secret_key
     aws_session_token = cred.token
     if aws_profile is not None:
-        args.extend(["-e", f"AWS_PROFILE={aws_profile}"])
+        if aws_profile != "default":
+            args.extend(["-e", f"AWS_PROFILE={aws_profile}"])
     if aws_region is not None:
         args.extend(["-e", f"AWS_REGION={aws_region}"])
     if aws_access_key_id is not None:
